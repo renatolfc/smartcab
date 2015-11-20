@@ -171,3 +171,12 @@ forums](http://discussions.udacity.com).
 You will get an email as soon as your reviewer has feedback for you. In
 the meantime, review your next project and feel free to get started on
 it or the courses supporting it!
+
+## Supporting Courses
+
+ * [Markov Decision
+   Processes](https://www.udacity.com/course/viewer#!/c-ud262/l-684808907/m-651230853)
+ * [Reinforcement
+   Learning](https://www.udacity.com/course/viewer#!/c-ud262/l-643978935/m-634899040)
+ * [Game Theory](https://www.udacity.com/course/viewer#!/c-ud262/l-668248596)
+ * [More Game Theory](https://www.udacity.com/course/viewer#!/c-ud262/l-639748716/m-640409492) beginning at Stochastic games and Multiagent RL
