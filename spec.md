@@ -147,9 +147,6 @@ to achieve the final version of the agent. How well does it perform?*
 *Does your agent get close to finding an optimal policy, i.e. reach the
 destination in the minimum possible time, and not incur any penalties?*
 
-<div class="markdown-container ng-binding"
-data-ng-bind-html="compiledOutput">
-
 ### Evaluation
 
 Your project will be reviewed by a Udacity reviewer against **[this
@@ -174,5 +171,3 @@ forums](http://discussions.udacity.com).
 You will get an email as soon as your reviewer has feedback for you. In
 the meantime, review your next project and feel free to get started on
 it or the courses supporting it!
-
-</div>
