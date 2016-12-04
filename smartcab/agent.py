@@ -12,6 +12,7 @@ UPDATE_STRING = 'LearningAgent.update(): deadline = {}, inputs = {}, ' + \
 
 LEARNING_RATE = 0.1
 DISCOUNT = 0.5
+EPSILON = 0.1
 
 class HardCodedAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -133,7 +134,7 @@ class LearningAgent(Agent):
         candidates = [k for k in self.q.keys() if k[0] == state]
         # if there are no candidates, we have to return a random action
         if len(candidates) == 0:
-            return 0, random.choice(Environment.valid_actions[1:])
+            return 0, random.choice(Environment.valid_actions)
         # Build a list we can sort to choose the action with highest value
         qs = [(self.q[c], c) for c in candidates]
         qs = sorted(qs, key=lambda x: x[0], reverse=True)
@@ -141,6 +142,12 @@ class LearningAgent(Agent):
         # The list's first position (0) is a pair (value, state-action),
         # so we extract the action
         return qs[0][0], qs[0][1][-1]
+
+    def get_action(self, state, best_action):
+        if random.random() < EPSILON:
+            return random.choice(Environment.valid_actions)
+        else:
+            return best_action[1]
 
     def update(self, t):
         # Gather inputs
@@ -158,7 +165,7 @@ class LearningAgent(Agent):
         )
 
         best_action = self.best_action(current_state)
-        action = best_action[1]
+        action = self.get_action(current_state, best_action)
 
         # Execute action and get reward
         reward = self.env.act(self, action)
@@ -175,7 +182,9 @@ class LearningAgent(Agent):
         self.last_action = action
         self.last_reward = reward
         print('----')
+        print(self.q)
         print(self.state)
+        print(best_action)
         print(UPDATE_STRING).format(deadline, inputs, action, reward)
 
 
@@ -185,10 +194,10 @@ def run():
     # Set up environment and agent
     e = Environment()  # create environment (also adds some dummy traffic)
     a = e.create_agent(LearningAgent)  # create agent
-    e.set_primary_agent(a, enforce_deadline=False)  # set agent to track
+    e.set_primary_agent(a, enforce_deadline=True)  # set agent to track
 
     # Now simulate it
-    sim = Simulator(e)
+    sim = Simulator(e, frame_delay=1)
     sim.run(n_trials=5)  # press Esc or close pygame window to quit
 
 
