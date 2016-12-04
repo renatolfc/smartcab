@@ -1,15 +1,23 @@
-import random
+#!/usr/bin/env python2
+
+# import random
 from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
+
+UPDATE_STRING = 'LearningAgent.update(): deadline = {}, inputs = {},' + \
+                'action = {}, reward = {}'
+
 
 class LearningAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
 
     def __init__(self, env):
-        super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
+        # sets self.env = env, state = None, next_waypoint = None
+        super(LearningAgent, self).__init__(env)
         self.color = 'red'  # override color
-        self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
+        # simple route planner to get next_waypoint
+        self.planner = RoutePlanner(self.env, self)
         # TODO: Initialize any additional variables here
 
     def reset(self, destination=None):
@@ -18,12 +26,14 @@ class LearningAgent(Agent):
 
     def update(self, t):
         # Gather inputs
-        self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
+
+        # from route planner, also displayed by simulator
+        self.next_waypoint = self.planner.next_waypoint()
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        
+
         # TODO: Select action according to your policy
         action = None
 
@@ -32,7 +42,7 @@ class LearningAgent(Agent):
 
         # TODO: Learn policy based on state, action, reward
 
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
+        print(UPDATE_STRING).format(deadline, inputs, action, reward)
 
 
 def run():
