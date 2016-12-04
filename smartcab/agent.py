@@ -5,9 +5,13 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 
+from collections import defaultdict
+
 UPDATE_STRING = 'LearningAgent.update(): deadline = {}, inputs = {}, ' + \
                 'action = {}, reward = {}'
 
+LEARNING_RATE = 0.1
+DISCOUNT = 0.5
 
 class HardCodedAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -114,12 +118,29 @@ class LearningAgent(Agent):
     def reset(self, destination=None):
         self.planner.route_to(destination)
         self.destination = destination
-        self.state = [0] * 5
-        # TODO: Prepare for a new trip; reset any variables here, if required
+        self.last_reward = None
+        self.last_action = None
+        self.last_state = None
+        self.state = None
+        self.q = defaultdict(int)
 
     @staticmethod
     def _get_action_index(action):
         return Environment.valid_actions.index(action)
+
+    def best_action(self, state):
+        # Find all Q values that share the same state we have here
+        candidates = [k for k in self.q.keys() if k[0] == state]
+        # if there are no candidates, we have to return a random action
+        if len(candidates) == 0:
+            return 0, random.choice(Environment.valid_actions[1:])
+        # Build a list we can sort to choose the action with highest value
+        qs = [(self.q[c], c) for c in candidates]
+        qs = sorted(qs, key=lambda x: x[0], reverse=True)
+        # Now we return the first action as we sorted by descending value
+        # The list's first position (0) is a pair (value, state-action),
+        # so we extract the action
+        return qs[0][0], qs[0][1][-1]
 
     def update(self, t):
         # Gather inputs
@@ -128,23 +149,33 @@ class LearningAgent(Agent):
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
 
-        # deadline = 18, inputs = {'light': 'red', 'oncoming': None, 'right':
-        # None, 'left': None},action = right, reward = 1
-        self.state = [
-            deadline, deadline < 0, inputs['light'] == 'red',
+        current_state = (
+            inputs['light'] == 'red',
             self._get_action_index(inputs['oncoming']),
             self._get_action_index(inputs['left']),
             self._get_action_index(inputs['right']),
-        ]
+            self._get_action_index(self.next_waypoint),
+        )
 
-        # For now we only generate random actions
-        action = random.choice(Environment.valid_actions[1:])
+        best_action = self.best_action(current_state)
+        action = best_action[1]
 
         # Execute action and get reward
         reward = self.env.act(self, action)
 
-        # TODO: Learn policy based on state, action, reward
+        if self.last_state:
+            # If this is True we are not in the first iteration
+            self.q[self.last_state, self.last_action] += LEARNING_RATE * (
+                self.last_reward + DISCOUNT * best_action[0] -
+                self.q[self.last_state, self.last_action]
+            )
 
+        self.last_state = self.state
+        self.state = current_state
+        self.last_action = action
+        self.last_reward = reward
+        print('----')
+        print(self.state)
         print(UPDATE_STRING).format(deadline, inputs, action, reward)
 
 
