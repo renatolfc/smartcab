@@ -114,6 +114,7 @@ class LearningAgent(Agent):
         self.planner = RoutePlanner(self.env, self)
         # TODO: Initialize any additional variables here
         self.next_waypoint = None
+        self.q = defaultdict(int)
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
@@ -122,7 +123,6 @@ class LearningAgent(Agent):
         self.last_action = None
         self.last_state = None
         self.state = None
-        self.q = defaultdict(int)
 
     @staticmethod
     def _get_action_index(action):
