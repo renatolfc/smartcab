@@ -156,12 +156,16 @@ class LearningAgent(Agent):
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
 
+        light = inputs['light']
+        can_go_forward = light != 'red'
+        can_go_left = light != 'red' and inputs['oncoming'] != 'forward' and \
+                      inputs['oncoming'] != 'right'
+        can_go_right = light != 'red' or inputs['left'] != 'forward'
+
         current_state = (
-            inputs['light'] == 'red',
-            self._get_action_index(inputs['oncoming']),
-            self._get_action_index(inputs['left']),
-            self._get_action_index(inputs['right']),
-            self._get_action_index(self.next_waypoint),
+            can_go_forward and self.next_waypoint == 'forward',
+            can_go_right and self.next_waypoint == 'right',
+            can_go_left and self.next_waypoint == 'left',
         )
 
         best_action = self.best_action(current_state)
